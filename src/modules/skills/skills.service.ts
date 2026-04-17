@@ -8,19 +8,42 @@ const createNewSkills = async (payload: ISkills, files: any[]) => {
       files.map((file) => uploadToCloudinary(file.path || "", "skills")),
     );
 
-    payload.skills.forEach((skill, index) => {
-      skill.img = uploadedImages[index]?.secure_url || "";
-    });
+    if (payload.skills && Array.isArray(payload.skills)) {
+      payload.skills.forEach((skill, index) => {
+        skill.img = uploadedImages[index] || "";
+      });
+    }
   }
 
   const result = await Skills.create(payload);
   return result;
 };
 
+const getSkills = async () => {
+  const result = await Skills.find();
+  return result;
+};
 
-const getSkills = async () => {};
+const updateSkills = async (id: string, payload: Partial<ISkills>, files: any[]) => {
+  if (files && files.length > 0 && payload.skills && Array.isArray(payload.skills)) {
+    const uploadedImages = await Promise.all(
+      files.map((file) => uploadToCloudinary(file.path || "", "skills")),
+    );
 
-const updateSkills = async (skillsData: ISkills) => {};
+    let imgIndex = 0;
+    payload.skills.forEach((skill) => {
+      if (!skill.img || skill.img === "") {
+        if (uploadedImages[imgIndex]) {
+          skill.img = uploadedImages[imgIndex];
+          imgIndex++;
+        }
+      }
+    });
+  }
+
+  const result = await Skills.findByIdAndUpdate(id, payload, { new: true });
+  return result;
+};
 
 const skillsService = {
   createNewSkills,

@@ -4,7 +4,9 @@ import skillsController from "./skills.controller";
 
 const router = Router();
 
-router.post("/create", upload.array("file"), skillsController.createNewSkills);
+router.post("/", upload.any(), skillsController.createNewSkills);
+router.get("/all", skillsController.getSkills);
+router.put("/:id", upload.any(), skillsController.updateSkills);
 
 const skillsRouter = router;
 export default skillsRouter;
